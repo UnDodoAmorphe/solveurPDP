@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include "inshiNoHeya.h"
 
@@ -35,12 +36,56 @@ main (int argc, char **argv) {
   Grid *grid = readFile(argv[1]);
   
   printValuesInGrid(grid);
+
+  printGrid(grid);
   
   freeGrid(grid);
   
   printf("Program ending!\n");
   
   return 0;
+}
+
+/*Affiche la grille dans un fichier de sortie*/
+void
+printGrid (Grid *grid) {
+    char* s = strcat (strcat ((char*)grid->size, "x"), (char*)grid->size);
+    char* name = strcat ("Result grid sized ", s);
+    FILE* outputFile = fopen (name, "w");
+
+    int size = grid->size;
+
+    for (int k = 0 ; k < size ; k++) {
+	fprintf (outputFile, "  __ ");  
+    }
+
+    for (int i = 0 ; i < size ; i++) {
+	fprintf (outputFile, "\n| ");
+
+	for (int j = 0 ; j < size ; j++) {
+	    if (grid->cells[i*grid->size+j]->value < 10)
+		fprintf (outputFile, " %" PRIu64 " ", grid->cells[i*grid->size+j]->value);
+	    else
+		fprintf (outputFile, "%" PRIu64, grid->cells[i*grid->size+j]->value);
+
+	    if (j == size - 1)
+		fprintf (outputFile, " |\n| ");
+	    else if (grid->cells[i*grid->size+j]->next == grid->cells[i*grid->size+j+1])
+		fprintf (outputFile, "   ");
+	    else
+		fprintf (outputFile, " | ");
+
+	}
+
+	for (int j = 0 ; j < size ; j++) {
+	    if (j == size - 1)
+		fprintf (outputFile, " |");
+	    else if (grid->cells[i*grid->size+j]->next == grid->cells[(i+1)*grid->size+j])
+		fprintf (outputFile, "    ");
+	    else
+		fprintf (outputFile, "__");
+	}
+    }
 }
 
 /* Lit une grille a partir d'un fichier. */
@@ -121,9 +166,13 @@ setRightwardRoom (Grid *grid, unsigned int currentCell, unsigned long long roomV
   while (grid->cells[currentCell]->roomProduct != 0)
     currentCell++;
   
-  for (unsigned short i=0; i<roomLength; i++)
+  for (unsigned short i=0; i<roomLength; i++) {
     grid->cells[currentCell+i]->roomProduct = roomValue;
 
+    if (i < roomLength - 1)
+      grid->cells[currentCell+i]->next = grid->cells[currentCell+(i+1)];
+  }
+  
   return currentCell+roomLength;
 }
 
@@ -133,9 +182,13 @@ setDownwardRoom (Grid *grid, unsigned int currentCell, unsigned long long roomVa
   while (grid->cells[currentCell]->roomProduct != 0)
     currentCell++;
   
-  for (unsigned short i=0; i<roomLength; i++)
+  for (unsigned short i=0; i<roomLength; i++) {
     grid->cells[currentCell+i*grid->size]->roomProduct = roomValue;
 
+    if (i < roomLength - 1)
+	grid->cells[currentCell+i*grid->size]->next = grid->cells[currentCell+(i+1)*grid->size];
+  }
+  
   return currentCell+1;
 }
 

@@ -1,5 +1,5 @@
 CPPFLAGS = -I. 
-CFLAGS   = -Wall -Wextra -std=c99 
+CFLAGS   = -g -Wall -Wextra -std=c99 
 LDFLAGS  = -lm
 
 BIN      = inshiNoHeya

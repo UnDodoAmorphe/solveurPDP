@@ -8,6 +8,7 @@
 typedef struct cell_t Cell;
 typedef struct grid_t Grid;
 
+void printGrid (Grid* grid);
 Grid* readFile (const char *path);
 Grid* initializeGrid (int size);
 unsigned int setRightwardRoom (Grid *grid, unsigned int currentCell, unsigned long long roomValue, unsigned short roomLength);
